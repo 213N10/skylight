@@ -25,24 +25,18 @@ func getMessages(ctx *gin.Context) {
 }
 
 func newMessage(ctx *gin.Context) {
-	authorName := ctx.PostForm("authorName")
-	authorId, err := strconv.ParseUint(ctx.PostForm("authorId"), 10, 32)
-	if err != nil {
-		ctx.JSON(400, gin.H{"error": "invalid author id"})
+	var data struct {
+		AuthorName string  `json:"authorName"`
+		AuthorId   uint    `json:"authorId"`
+		Lat        float64 `json:"lat"`
+		Lng        float64 `json:"lng"`
+		Content    string  `json:"content"`
+	}
+	if err := ctx.BindJSON(&data); err != nil {
+		ctx.JSON(400, gin.H{"error": "invalid json"})
 		return
 	}
-	lat, err := strconv.ParseFloat(ctx.PostForm("lat"), 64)
-	if err != nil {
-		ctx.JSON(400, gin.H{"error": "invalid latitude"})
-		return
-	}
-	lng, err := strconv.ParseFloat(ctx.PostForm("lng"), 64)
-	if err != nil {
-		ctx.JSON(400, gin.H{"error": "invalid longitude"})
-		return
-	}
-	content := ctx.PostForm("content")
-	message := database.CreateMessage(authorName, uint(authorId), lat, lng, content)
+	message := database.CreateMessage(data.AuthorName, data.AuthorId, data.Lat, data.Lng, data.Content)
 	ctx.JSON(200, message)
 }
 

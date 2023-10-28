@@ -1,19 +1,45 @@
 package database
 
+import (
+	"fmt"
+	"sort"
+
+	"gorm.io/gorm"
+)
+
 type Message struct {
-	ID         uint    `json:"id" gorm:"primaryKey,autoIncrement"`
+	gorm.Model
 	AuthorName string  `json:"authorName"`
 	AuthorId   uint    `json:"authorId"`
-	Lng        float64 `json:"lng" gorm:"index"`
-	Lat        float64 `json:"lat" gorm:"index"`
+	Lng        float64 `json:"lng" gorm:"index" column:"lng"`
+	Lat        float64 `json:"lat" gorm:"index" column:"lat"`
 	Content    string  `json:"content"`
+}
+
+func (Message) TableName() string {
+	return "messages"
 }
 
 func GetMessages(lat, long float64) []Message {
 	var messages []Message
-	DB.Where("lat BETWEEN ? AND ?", lat-0.01, lat+0.01).
-		Where("lng BETWEEN ? AND ?", long-0.01, long+0.01).
-		Find(&messages)
+
+	query := `
+		SELECT *, 
+		((lat - ?) * (lat - ?) + (lng - ?) * (lng - ?)) as distance
+		FROM messages
+		ORDER BY distance
+		LIMIT ?;
+	`
+
+	if err := DB.Raw(query, lat, lat, long, long, 100).Scan(&messages).Error; err != nil {
+		fmt.Println(err)
+		return []Message{}
+	}
+
+	sort.Slice(messages, func(i, j int) bool {
+		return messages[i].CreatedAt.After(messages[j].CreatedAt)
+	})
+
 	return messages
 }
 
