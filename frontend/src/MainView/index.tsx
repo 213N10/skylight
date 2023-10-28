@@ -45,7 +45,7 @@ const MainView = () => {
         />
       </Styled.NameInputContainer>
       <Link to='/chat' onClick={determineMyLocation}>Use my location</Link>
-      <Link to='/...todo...'>Choose on map</Link>
+      <Link to='/map'>Choose on map</Link>
     </Styled.MainContainer>
   )
 }

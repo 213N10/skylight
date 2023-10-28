@@ -9,7 +9,7 @@ const ChatView = () => {
   return location ? (
     <Styled.ChatOuterContainer>
       <Styled.Chat>
-
+        
       </Styled.Chat>
       <Styled.ChatForm>
         <input required

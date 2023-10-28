@@ -5,6 +5,7 @@ import styled, { createGlobalStyle } from 'styled-components'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import MainView from './MainView'
 import ChatView from './ChatView'
+import MapView from './MapView'
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
   {
     path: "/chat",
     element: <ChatView />
+  },
+  {
+    path: "/map",
+    element: <MapView />
   }
 ])
 
