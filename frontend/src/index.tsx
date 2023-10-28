@@ -4,11 +4,16 @@ import { RecoilRoot } from 'recoil'
 import styled, { createGlobalStyle } from 'styled-components'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import MainView from './MainView'
+import ChatView from './ChatView'
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <MainView />
+  },
+  {
+    path: "/chat",
+    element: <ChatView />
   }
 ])
 
