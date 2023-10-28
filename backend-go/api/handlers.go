@@ -19,7 +19,7 @@ func getMessages(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": "invalid latitude"})
 		return
 	}
-	messages := database.GetMessages(lng, lat)
+	messages := database.GetMessages(lat, lng)
 	ctx.JSON(200, messages)
 
 }

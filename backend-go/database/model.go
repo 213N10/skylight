@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"sort"
 
 	"gorm.io/gorm"
 )
@@ -20,25 +19,27 @@ func (Message) TableName() string {
 	return "messages"
 }
 
-func GetMessages(lat, long float64) []Message {
-	var messages []Message
+type WeightedMessage struct {
+	Message
+	Distance float64
+}
 
-	query := `
-		SELECT *, 
-		((lat - ?) * (lat - ?) + (lng - ?) * (lng - ?)) as distance
-		FROM messages
-		ORDER BY distance
-		LIMIT ?;
-	`
+func GetMessages(lat, long float64) []WeightedMessage {
+	var messages []WeightedMessage
 
-	if err := DB.Raw(query, lat, lat, long, long, 100).Scan(&messages).Error; err != nil {
+	err := DB.
+		Select("*").
+		Where("lat BETWEEN ? AND ?", lat-0.01, lat+0.01).
+		Where("lng BETWEEN ? AND ?", long-0.01, long+0.01).
+		Order("created_at desc").
+		Limit(100).
+		Find(&messages).
+		Error
+
+	if err != nil {
 		fmt.Println(err)
-		return []Message{}
+		return nil
 	}
-
-	sort.Slice(messages, func(i, j int) bool {
-		return messages[i].CreatedAt.After(messages[j].CreatedAt)
-	})
 
 	return messages
 }
