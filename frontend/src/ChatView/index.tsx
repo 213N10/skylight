@@ -1,5 +1,5 @@
-import { useRecoilValue } from 'recoil'
-import { locationState } from './state'
+import { useRecoilValue, useRecoilState } from 'recoil'
+import { idState, locationState } from './state'
 import * as Styled from './styles'
 import EmptyMock from './EmptyMock'
 import { FormEvent, useEffect, useRef, useState } from 'react'
@@ -11,11 +11,17 @@ const ChatView = () => {
   const location = useRecoilValue(locationState)
   const [messages, setMessages] = useState<Message[]>([])
   const [userPrompt, setUserPrompt] = useState("")
-  const [id, setId] = useState<number>(Date.now())
+  const [id, setId] = useRecoilState(idState)
   const mock = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    API.getId().then(newId => setId(prevId => newId ?? prevId))
+    if (id != null) return
+    API.getId().then(newId => {
+      setId(newId)
+    })
+  }, [id])
+
+  useEffect(() => {
     const interval = setInterval(() => {
       if (location === null) return
       API.getMessages(location.lat, location.lng).then(messages => {
@@ -29,7 +35,7 @@ const ChatView = () => {
 
   const submitMessage = (event: FormEvent) => {
     event.preventDefault()
-    if (location === null) return
+    if (location === null || id === null) return
     API.newMessage(name, id, location.lat, location.lng, userPrompt)
     setUserPrompt("")
   }
@@ -38,8 +44,12 @@ const ChatView = () => {
     <Styled.ChatOuterContainer>
       <Styled.Chat>
         {
-          messages.map(message => {
-            return <MessageElement {...message} />
+          messages.map((message, idx) => {
+            return <MessageElement 
+              key={idx} 
+              selfId={id}
+              {...message} 
+            />
           })
         }
         <div ref={mock}></div>
@@ -56,9 +66,13 @@ const ChatView = () => {
   ) : <EmptyMock />
 }
 
-const MessageElement = ({content, lat, lng}: Message) => {
+const MessageElement = (props: Message & { selfId: number | null }) => {
+  const self = props.authorId === props.selfId
   return (
-    <h1>{content}, {lat}, {lng}</h1>
+    <Styled.MessageContainer $self={self}>
+      <small>{self ? 'Me' : (props.authorName || 'Unknown')}</small>
+      <p>{props.content}</p>
+    </Styled.MessageContainer>
   )
 }
 

@@ -47,8 +47,8 @@ class API {
   getId = async () => {
     try {
       const result = await fetch(`${this.baseUrl}/get-id`)
-      const value = await result.text()
-      return Number(value)
+      const value = await result.json() as { id : number }
+      return value.id
     } catch {
       console.log('Failed to get an id')
       return null

@@ -25,6 +25,13 @@ export const Chat = styled.div`
   flex: 1 1 0;
   display: flex;
   flex-direction: column;
+  overflow: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 `
 
 export const ChatForm = styled.form`
@@ -50,4 +57,20 @@ export const ChatForm = styled.form`
       background-color: #c7215b;
     }
   }
+`
+
+export const MessageContainer = styled.div<{$self?: boolean}>`
+  padding: 0.45em 0.75em;
+  margin: 0.25em 0.5em;
+  background-color: #ccc;
+  align-self: start;
+  border-radius: 0 15px 15px 15px;
+  min-width: 100px;
+  ${({$self}) => $self && `
+    align-self: end;
+    background-color: #c7215b;
+    color: white;
+    border-radius: 15px 0 15px 15px;
+    text-align: end;
+  `}
 `
